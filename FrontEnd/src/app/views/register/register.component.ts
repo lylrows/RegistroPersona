@@ -107,4 +107,7 @@ export class RegisterComponent  implements OnInit {
       complete:()=>console.log('👍 Registro Correcto')
     })
   }
+  ValidarPersona(){
+    //Validar campos vacíos
+  }
 }
