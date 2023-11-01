@@ -1,0 +1,204 @@
+INSERTAR PERSONA--------------------------------------
+
+USE [BD_TAWA]
+GO
+/****** Object:  StoredProcedure [dbo].[spi_H001_Persona]  ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[spi_H001_Persona] 
+	 @cod_persona varchar(30)
+	,@id_tipo_documento int
+	,@num_doc_identidad char(20)
+	,@nombre varchar(50)
+	,@apellido_paterno varchar(30)
+	,@apellido_materno varchar(30)
+	,@fecha_nacimiento date
+	,@sexo char(1)
+	,@correo varchar(50)
+	,@telefono_movil char(15)	
+	,@cod_ubigeo_nacimiento char(6)--departamento--provincia--distrito
+AS
+BEGIN
+	DECLARE @nresult int;                       
+	DECLARE @smessage varchar(100);
+
+	IF @Cod_Persona=''
+		BEGIN
+			declare @totalrecords int 
+			SET @totalrecords = (select count (*) FROM DBO.H001_Persona);
+			SET @cod_persona = CONCAT('PE', RIGHT(
+												(CONCAT('0000000000', (cast(( MAX(@totalrecords)+1 ) as varchar(10))))
+												), 
+												9))
+
+			INSERT INTO DBO.H001_Persona
+				(CodPersona
+				,IdTipoDocumento
+				,NumDocIdentidad
+				,Nombre
+				,ApellidoPaterno
+				,ApellidoMaterno
+				,FechaNacimiento
+				,Sexo
+				,Correo
+				,TelefonoMovil
+				,CodUbigeoNacimiento
+				,FechaCreaRegistro)
+			VALUES
+				(@cod_persona
+				,@id_tipo_documento
+				,@num_doc_identidad
+				,@nombre
+				,@apellido_paterno
+				,@apellido_materno
+				,Convert(date,@fecha_nacimiento, 126)
+				,@sexo
+				,@correo
+				,@telefono_movil
+				,@cod_ubigeo_nacimiento
+				,GETDATE())
+
+			set @nresult = 1;    
+			set @smessage = 'Registro Correcto';
+		END
+	ELSE 
+		BEGIN
+			set @nresult = 2;    
+			set @smessage = 'Otra Acción';
+		END
+
+	SELECT @nresult AS resultado, @smessage AS mensaje;
+END
+
+LISTAR TIPO DE DOCUMENTO--------------------------------------
+USE [BD_TAWA]
+GO
+/****** Object:  StoredProcedure [dbo].[sps_H001_TipoDocumento]  ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[sps_H001_TipoDocumento]
+	@option int
+AS
+BEGIN
+	
+	IF @option=0
+		BEGIN
+			SELECT
+				 IdTipoDocumento
+				,TipoDocumento
+				,Abreviatura
+				,MaxNumDigito
+				,EstadoRegistro
+				FROM dbo.H001_TipoDocumento
+		END
+END
+
+LISTAR DEPARTAMENTO--------------------------------------
+USE [BD_TAWA]
+GO
+/****** Object:  StoredProcedure [dbo].[sps_H001_Departamento]   ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[sps_H001_Departamento] 
+	@option int
+AS
+BEGIN
+	
+	IF @option=0
+		BEGIN
+			SELECT
+				  CodDepartamento
+				 ,Departamento
+				 ,EstadoRegistro
+				FROM dbo.H001_Departamento
+				WHERE EstadoRegistro=1
+		END
+END
+
+LISTAR PROVINCIA--------------------------------------
+USE [BD_TAWA]
+GO
+/****** Object:  StoredProcedure [dbo].[sps_H001_Provincia]   ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[sps_H001_Provincia] 
+	 @option int
+	,@cod_departamento char(2)
+AS
+BEGIN
+	
+	IF @option=0
+		BEGIN
+			SELECT
+				  CodDepartamento 
+				 ,CodProvincia
+				 ,Provincia
+				 ,EstadoRegistro
+				FROM dbo.H001_Provincia
+				where CodDepartamento=@cod_departamento 
+				and EstadoRegistro=1
+		END
+END
+
+LISTAR DISTRITO--------------------------------------
+USE [BD_TAWA]
+GO
+/****** Object:  StoredProcedure [dbo].[sps_H001_Ubigeo]    ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[sps_H001_Ubigeo] 
+	 @option int
+	,@cod_departamento char(2)
+	,@cod_provincia char(2)
+AS
+BEGIN
+	
+	IF @option=0
+		BEGIN
+			SELECT
+				  CodUbigeo
+				 ,CodDepartamento 
+				 ,CodProvincia
+				 ,Distrito
+				 ,EstadoRegistro
+				FROM dbo.H001_Ubigeo
+				WHERE CodDepartamento=@cod_departamento 
+				and CodProvincia=@cod_provincia 
+				and EstadoRegistro=1
+		END
+END

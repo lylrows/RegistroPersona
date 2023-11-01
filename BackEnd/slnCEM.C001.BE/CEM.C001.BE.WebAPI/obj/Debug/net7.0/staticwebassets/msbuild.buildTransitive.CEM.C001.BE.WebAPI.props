@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\CEM.C001.BE.WebAPI.props" />
+</Project>
